@@ -1,19 +1,60 @@
 <template lang="html">
     <el-card class="box-card">
         <div class="search-bar">
-            <el-form :inline="true" :model="searchData" class="fl">
-                <el-input style="display: none;"></el-input>
-                <el-form-item label="登录名称">
-                    <el-input v-model="searchData.loginName" placeholder="登录名称" @keyup.enter.native="onSearch()"></el-input>
-                </el-form-item>
+            <el-form :inline="true" :model="searchData" class='search-form'>
+                <el-row :gutter="20">
+                    <el-col :span="8">
+                        <el-input style="display: none;"></el-input>
+                        <el-form-item label="指标编号">
+                            <el-input v-model="searchData.indicatorCode" placeholder="指标编号"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="指标名称">
+                            <el-input v-model="searchData.indicatorName" placeholder="指标名称"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="指标类型">
+                            <el-input v-model="searchData.indicatorType" placeholder="指标类型"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="8">
+                        <el-input style="display: none;"></el-input>
+                        <el-form-item label="主管部门">
+                            <el-input v-model="searchData.deptName" placeholder="主管部门"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-input style="display: none;"></el-input>
+                        <el-form-item label="是否发布">
+                            <el-select v-model="searchData.isIssue" placeholder="请选择" style='width:177px'>
+                                <el-option value=''>全部</el-option>
+                                <el-option :value='1'>是</el-option>
+                                <el-option :value='0'>否</el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="是否管架指标">
+                            <el-select v-model="searchData.isPipe" placeholder="请选择" style='width:150px'>
+                                <el-option value=''>全部</el-option>
+                                <el-option :value='1'>是</el-option>
+                                <el-option :value='0'>否</el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
             </el-form>
             <div class="fl">
-                <el-button type="text" @click="handleReset">重置</el-button>
-                <el-button type="primary" icon="el-icon-search" @click="onSearch">查询</el-button>
+                <el-button type="text" size='small' @click="handleReset">重置</el-button>
+                <el-button type="primary" size='small' icon="el-icon-search" @click="onSearch">查询</el-button>
             </div>
         </div>
         <div  class="tools-bar">
-            <el-button type="success" icon="el-icon-plus" size="small" @click="dialogVisible = true;dialogTitle='新增用户'">新增用户</el-button>
+            <el-button type="primary" icon="el-icon-plus" size="small" @click="dialogVisible = true;dialogTitle='新增指标'">新增指标</el-button>
         </div>
         <div>
             <el-table
@@ -22,65 +63,125 @@
                 :data="tableData"
                 border
                 highlight-current-row
-                style="width: 100%">
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
                 <el-table-column
-                    type="index"
-                    width="60">
+                    type="selection"
+                    width="55">
                 </el-table-column>
                 <el-table-column
-                    prop="status"
-                    label="停用/启用"
-                    align="center"
-                    min-width="100">
-                    <template slot-scope="scope">
-                        <!-- <el-tag v-if="scope.row.status=='1'" color="#13CE66">启用</el-tag>
-                        <el-tag v-if="scope.row.status=='0'" color="#FF4949">停用</el-tag> -->
-                        <el-switch
-                            v-model="scope.row.status"
-                            :active-value="1"
-                            :inactive-value="0"
-                            active-text=""
-                            inactive-text=""
-                            @change="handleStatus(scope.row)">
-                        </el-switch>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    prop="loginName"
-                    label="登录名"
+                    prop="indicatorCode"
+                    label="指标编号"
                     min-width="120">
                 </el-table-column>
                 <el-table-column
-                    prop="name"
-                    label="真实姓名"
+                    prop="indicatorName"
+                    label="指标名称"
                     min-width="120">
                 </el-table-column>
                 <el-table-column
-                    prop="mobile"
-                    label="联系电话"
+                    prop="indicatorType"
+                    label="指标类型"
+                    min-width="120">
+                </el-table-column>
+                <el-table-column
+                    prop="startDate"
+                    label="启用时间"
+                    min-width="120">
+                </el-table-column>
+                <el-table-column
+                    prop="generate"
+                    label="生成周期"
                     width="130">
                 </el-table-column>
                 <el-table-column
-                    prop="roleList"
-                    :formatter="roleFormatter"
-                    min-width="210"
-                    label="权限">
+                    prop="statisticalType"
+                    min-width="200"
+                    label="统计类型">
                 </el-table-column>
                 <el-table-column
-                    prop="address"
-                    min-width="200"
-                    label="联系地址">
+                    prop="isCollect"
+                    label="是否可汇总"
+                    width="120">
+                    <template slot-scope="scope">
+                        <p>{{scope.row.isCollect ? '是' : '否'}}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="dataLayout"
+                    label="数据格式"
+                    width="120" />
+                <el-table-column
+                    prop="dataUnit"
+                    label="数据单位"
+                    width="120">
+                </el-table-column>
+                <el-table-column
+                    prop="isIssue"
+                    label="是否发布"
+                    width="120">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.isIssue" type="success">是</el-tag>
+                        <el-tag v-else type="danger">否</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="isGround"
+                    label="是否落地"
+                    width="120">
+                    <template slot-scope="scope">
+                        <p>{{scope.row.isIssue ? '是' : '否'}}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="isPipe"
+                    label="是否管架指标"
+                    width="120">
+                    <template slot-scope="scope">
+                        <p>{{scope.row.isPipe ? '是' : '否'}}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="isCountdown"
+                    label="是否跨年"
+                    width="120">
+                    <template slot-scope="scope">
+                        <p>{{scope.row.isCountdown ? '是' : '否'}}</p>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="linkMan"
+                    label="联系人"
+                    width="120">
+                </el-table-column>
+                <el-table-column
+                    prop="phone"
+                    label="联系人电话"
+                    width="180">
                 </el-table-column>
                 <el-table-column
                     prop="email"
-                    label="电子邮箱"
-                    width="250">
+                    label="联系人邮箱"
+                    width="170">
                 </el-table-column>
                 <el-table-column
-                    prop="lastLoginTime"
-                    label="最后登录时间"
-                    :formatter="toDateTime"
-                    width="180">
+                    prop="deptName"
+                    label="主管部门"
+                    width="150">
+                </el-table-column>
+                <el-table-column
+                    prop="isPastDue"
+                    label="是否过期"
+                    width="100">
+                    <template slot-scope="scope">
+                        <el-tag v-if="scope.row.isPastDue" type="success">是</el-tag>
+                        <el-tag v-else type="danger">否</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    prop="indicatorsBelonging"
+                    label="指标归属"
+                    width="120">
                 </el-table-column>
                 <el-table-column
                     label="操作"
@@ -96,13 +197,15 @@
                             <el-button
                                 type="text"
                                 size="small"
-                                @click="handleResetPwd(scope.$index, scope.row)"
-                            >重置密码</el-button>
+                                style='color:#F56C6C'
+                                @click="handleDelete(scope.$index, scope.row)"
+                            >删除</el-button>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
             <div class="pagination-bar">
+                <el-button type='danger' size='small' :disabled='multipleSelection.length?false:true' @click='batchDelete'>批量删除</el-button>
                 <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
@@ -113,46 +216,196 @@
                 </el-pagination>
             </div>
         </div>
-        <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" @close="onDialogClose()">
-            <el-form ref="dataForm" :rules="rules" :model="dataForm" label-width="80px">
-                <el-form-item label="登录名" prop="loginName">
-                    <template v-if="dialogTitle=='修改用户信息'">{{dataForm.loginName}}</template>
-                    <el-input v-else v-model="dataForm.loginName" placeholder="登录名"></el-input>
-                </el-form-item>
-                <el-form-item label="用户角色" prop="roleIds">
-                    <el-select v-model="dataForm.tempRoleIds" multiple placeholder="请选择" style="width: 100%;">
-                        <el-option
-                            v-for="item in roles"
-                            :key="item.id"
-                            :label="item.roleName"
-                            :value="item.id">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="真实姓名" prop="name">
-                    <el-input v-model="dataForm.name" placeholder="真实姓名"></el-input>
-                </el-form-item>
-                <el-form-item label="联系电话" prop="mobile">
-                    <el-input v-model="dataForm.mobile" placeholder="联系电话"></el-input>
-                </el-form-item>
-                <el-form-item label="联系地址" prop="address">
-                    <el-input v-model="dataForm.address" placeholder="联系地址"></el-input>
-                </el-form-item>
-                <el-form-item label="电子邮箱" prop="email">
-                    <el-input v-model="dataForm.email" placeholder="电子邮箱"></el-input>
-                </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="info" @click="onDialogSubmit()" v-if="dialogTitle=='修改用户信息'">保存</el-button>
-                <el-button type="primary" @click="onDialogSubmit()" v-else>立即创建</el-button>
-            </div>
-        </el-dialog>
+        <el-dialog
+                :title="dialogTitle"
+                width="80%"
+                :visible.sync="dialogVisible"
+                @close="onDialogClose()">
+                <el-form ref="dataForm" :rules="rules" :model="dataForm" label-width="120px">
+                    <el-row :gutter="20">
+                        <el-col :span="6">
+                            <el-form-item label="指标编号" prop="indicatorCode">
+                                <el-input v-model="dataForm.indicatorCode" placeholder="指标编号"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="指标名称" prop="indicatorName">
+                                <el-input v-model="dataForm.indicatorName" placeholder="指标名称"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="指标类型" prop="indicatorType">
+                                <el-input v-model="dataForm.indicatorType" placeholder="指标类型"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="启用时间" prop="startDate">
+                                <el-date-picker
+                                    v-model="dataForm.startDate"
+                                    type="date"
+                                    style='width:100%'
+                                    placeholder="选择日期">
+                                </el-date-picker>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="6">
+                            <el-form-item label="生成周期" prop="generate">
+                                <el-select v-model="dataForm.generate" placeholder="请选择">
+                                    <el-option label='年' :value='1'/>
+                                    <el-option label='月' :value='2'/>
+                                    <el-option label='日' :value='3'/>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="统计类型" prop="statisticalType">
+                                <el-input v-model="dataForm.statisticalType" placeholder="统计类型"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="是否可汇总" prop="isCollect">
+                                <el-select v-model="dataForm.isCollect" placeholder="请选择">
+                                    <el-option label='是' :value='1'/>
+                                    <el-option label='否' :value='0'/>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="数据格式" prop="dataLayout">
+                                <el-input v-model="dataForm.dataLayout" placeholder="数据格式"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="6">
+                            <el-form-item label="数据单位" prop="dataUnit">
+                                <el-input v-model="dataForm.dataUnit" placeholder="数据单位"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="是否发布" prop="isIssue">
+                                <el-select v-model="dataForm.isIssue" placeholder="请选择">
+                                    <el-option label='是' :value='1'/>
+                                    <el-option label='否' :value='0'/>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="是否落地" prop="isGround">
+                                <el-select v-model="dataForm.isGround" placeholder="请选择">
+                                    <el-option label='是' :value='1'/>
+                                    <el-option label='否' :value='0'/>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="是否管架指标" prop="isPipe">
+                                <el-select v-model="dataForm.isPipe" placeholder="请选择">
+                                    <el-option label='是' :value='1'/>
+                                    <el-option label='否' :value='0'/>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="6">
+                            <el-form-item label="是否跨年" prop="isCountdown">
+                                <el-select v-model="dataForm.isCountdown" placeholder="请选择">
+                                    <el-option label='是' :value='1'/>
+                                    <el-option label='否' :value='0'/>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="联系人" prop="linkMan">
+                                <el-input v-model="dataForm.linkMan" placeholder="联系人"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="联系人电话" prop="phone">
+                                <el-input v-model="dataForm.phone" placeholder="联系人电话"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="联系人邮箱" prop="email">
+                                <el-input v-model="dataForm.email" placeholder="联系人邮箱"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="6">
+                            <el-form-item label="主管部门" prop="deptName">
+                                <el-input v-model="dataForm.deptName" placeholder="主管部门"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="是否过期" prop="isPastDue">
+                                <el-select v-model="dataForm.isPastDue" placeholder="请选择">
+                                    <el-option label='是' :value='1'/>
+                                    <el-option label='否' :value='0'/>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="指标归属" prop="indicatorsBelonging">
+                                <el-input v-model="dataForm.indicatorsBelonging" placeholder="指标归属"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                        </el-col>
+                    </el-row>
+                    <el-divider content-position="left"><i class="el-icon-folder-remove"></i></el-divider>
+                    <el-row :gutter="20">
+                        <el-col :span="24">
+                            <el-form-item label="业务定义" prop="businessDefinition">
+                                <el-input
+                                    type="textarea"
+                                    :rows="4"
+                                    placeholder="请输入内容"
+                                    v-model="dataForm.businessDefinition">
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="24">
+                            <el-form-item label="业务口径" prop="businessScope">
+                                <el-input
+                                    type="textarea"
+                                    :rows="4"
+                                    placeholder="请输入内容"
+                                    v-model="dataForm.businessScope">
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                        <el-col :span="24">
+                            <el-form-item label="备注" prop="memo">
+                                <el-input
+                                    type="textarea"
+                                    :rows="4"
+                                    placeholder="请输入内容"
+                                    v-model="dataForm.memo">
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="onDialogSubmit()" v-if="dialogTitle=='修改指标信息'">保存</el-button>
+                    <el-button type="primary" @click="onDialogSubmit()" v-else>立即创建</el-button>
+                </div>
+            </el-dialog>
+
     </el-card>
 </template>
 <script>
 import { getUserList } from '@/api/permission'
-import moment from 'moment'
+import axios from 'axios'
 export default {
     data() {
         return {
@@ -160,39 +413,12 @@ export default {
             pageSize: 10,
             tableLoading: false,
             dialogVisible: false,
-            dialogTitle: '新增用户',
-            roles: [
-                {
-                    id: 1,
-                    roleName: '超级管理员'
-                },
-                {
-                    id: 2,
-                    roleName: '普通用户'
-                }
-            ],
-            defaultTreeProps: {
-                children: 'childPermList',
-                label: 'permissionName'
-            },
+            dialogTitle: '新增指标',
             rules: {
-                loginName: [
+                indicatorName: [
                     {
                         required: true,
-                        message: '登录名不能为空',
-                        trigger: 'blur'
-                    },
-                    {
-                        min: 1,
-                        max: 50,
-                        message: '登录名长度在 1 到 50 个字符',
-                        trigger: 'blur'
-                    }
-                ],
-                name: [
-                    {
-                        required: true,
-                        message: '真实姓名不能为空',
+                        message: '指标名称不能为空',
                         trigger: 'blur'
                     },
                     {
@@ -202,7 +428,20 @@ export default {
                         trigger: 'blur'
                     }
                 ],
-                mobile: [
+                indicatorCode: [
+                    {
+                        required: true,
+                        message: '指标编号不能为空',
+                        trigger: 'blur'
+                    },
+                    {
+                        min: 1,
+                        max: 20,
+                        message: '指标编号长度在 1 到 20 个字符',
+                        trigger: 'blur'
+                    }
+                ],
+                phone: [
                     {
                         required: true,
                         message: '联系电话不能为空',
@@ -210,7 +449,7 @@ export default {
                     },
                     {
                         pattern: /^(13|15|18|14|17)[0-9]{9}$/,
-                        message: '手机号码格式不正确',
+                        message: '联系人电话格式不正确',
                         trigger: 'blur'
                     }
                 ],
@@ -228,30 +467,61 @@ export default {
                 ]
             },
             searchData: {
-                loginName: ''
+                indicatorCode: undefined,
+                indicatorName: undefined,
+                indicatorType: undefined,
+                deptName: undefined,
+                isPipe: undefined,
+                isIssue: undefined
             },
             dataForm: {
                 id: '',
-                loginName: '',
-                tempRoleIds: [],
-                roleIds: '',
-                name: '',
-                mobile: '',
-                address: '',
-                email: ''
+                indicatorCode: '',
+                indicatorName: '',
+                indicatorType: '',
+                deptName: '',
+                linkMan: '',
+                email: '',
+                phone: '',
+                dataLayout: '',
+                generate: '',
+                dataUnit: '',
+                isPipe: '',
+                isCollect: '',
+                isIssue: '',
+                isGround: '',
+                isCountdown: '',
+                isPastDue: '',
+                indicatorsBelonging: '',
+                businessDefinition: '',
+                businessScope: '',
+                memo: '',
+                statisticalType: ''
             },
-            tableData: []
+            tableData: [],
+            multipleSelection: []
         }
     },
     created() {
-        this.initList()
+        this.getInit()
     },
     methods: {
         async initList() {
             const data = await getUserList()
             this.tableData = data
         },
-        handleStatus(row) {},
+        getInit() {
+            axios.get('http://localhost:3003/apiConfig', {
+                params: this.searchData
+            })
+                .then((response) => {
+                    if (response.status === 200) {
+                        this.tableData = response.data
+                    }
+                }, () => {
+                    console.log('这里是用了vue-source,后端没有接口')
+                })
+        },
         statusFormat(row, column, cellValue) {
             return { '0': '停用', '1': '启用' }[cellValue] || ''
         },
@@ -268,52 +538,47 @@ export default {
         },
         handleReset() {
             this.searchData = {
-                loginName: ''
+                indicatorCode: undefined,
+                indicatorName: undefined,
+                indicatorType: undefined,
+                deptName: undefined,
+                isPipe: undefined,
+                isIssue: undefined
             }
             this.onSearch()
         },
-        onSearch({ pageNumber = 1 } = {}) {},
-        toDateTime(row, column, cellValue) {
-            return cellValue
-                ? moment(cellValue).format('YYYY-MM-DD HH:mm:ss')
-                : ''
-        },
-        roleFormatter(row, column, cellValue) {
-            let result = []
-            if (typeof row.erpMemberRoles === 'object' && row.erpMemberRoles.length > 0) {
-                for (let item of row.erpMemberRoles) {
-                    result.push(item.roleName)
-                }
-            }
-            return result.join('，')
+        onSearch({ pageNumber = 1 } = {}) {
+            this.getInit()
         },
         handleChangeStatus(index, row) {},
-        handleResetPwd(index, row) {
-            this.$confirm('确认重置该用户的登录密码？', '提示', {
+        handleDelete(index, row) {
+            this.$confirm('确认删除吗？', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
-            }).then(() => {})
+            }).then(() => {
+                console.log('-row--', row)
+                axios.delete('http://localhost:3003/apiConfig' + row.id)
+                    .then((response) => {
+                        this.getInit()
+                    }, () => {
+                        console.log('这里是用了vue-source,后端没有接口')
+                    })
+            })
         },
         handleEdit(index, row) {
             this.dialogVisible = true
-            this.dialogTitle = '修改用户信息'
-            this.dataForm.tempRoleIds = []
-            for (let x of Object.keys(this.dataForm)) {
-                if (
-                    x === 'tempRoleIds' &&
-                    typeof row.roleList === 'object' &&
-                    row.roleList.length > 0
-                ) {
-                    for (let item of row.roleList) {
-                        this.dataForm.tempRoleIds.push(item.id)
-                    }
-                } else {
-                    this.dataForm[x] = row[x]
-                }
-            }
+            this.dialogTitle = '修改指标信息'
+            Object.assign(this.dataForm, row)
         },
-        onDialogSubmit() {}
+        onDialogSubmit() {
+            console.log('---', this.dataForm)
+        },
+        handleSelectionChange(val) {
+            this.multipleSelection = val
+        },
+        batchDelete() {
+        }
     }
 }
 </script>
@@ -327,11 +592,28 @@ export default {
 }
 .search-bar{
     overflow: hidden;
+    display:flex;
+}
+.search-form{
+    width: 80%;
 }
 </style>
 
 <style>
 .tools-bar{
     margin-bottom:20px;
+}
+.pagination-bar{
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+.el-dialog{
+    height: 600px;
+    overflow-y: auto;
+}
+.dialog-footer{
+    position:sticky;
+    bottom:0;
 }
 </style>

@@ -9,7 +9,12 @@ import Home from '@/pages/home/index'
 // 指标管理
 const IndicatorLibrary = () => import('@/pages/indicatorLibrary')
 const Indicatore = () => import('@/pages/indicatorLibrary/indicatore')
-
+// 自定义报表管理
+const StatementManage = () => import('@/pages/statementManage')
+const CustomReport = () => import('@/pages/statementManage/customReport')
+// 报表指标管理
+const ReportIndicator = () => import('@/pages/reportIndicator')
+const QueryIndicators = () => import('@/pages/reportIndicator/queryIndicators')
 Vue.use(Router)
 
 /* 初始路由 */
@@ -51,7 +56,7 @@ export const DynamicRoutes = [
                 name: 'indicatorLibrary',
                 meta: {
                     name: '指标库管理',
-                    icon: 'table'
+                    icon: 'nested'
                 },
                 children: [
                     {
@@ -60,6 +65,46 @@ export const DynamicRoutes = [
                         component: Indicatore,
                         meta: {
                             name: '指标管理'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 3,
+                path: 'statementManage',
+                component: StatementManage,
+                name: 'statementManage',
+                meta: {
+                    name: '报表管理',
+                    icon: 'example'
+                },
+                children: [
+                    {
+                        path: 'customReport',
+                        name: 'customReport',
+                        component: CustomReport,
+                        meta: {
+                            name: '自定义报表管理'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 4,
+                path: 'reportIndicator ',
+                component: ReportIndicator,
+                name: 'reportIndicator',
+                meta: {
+                    name: '报表指标管理',
+                    icon: 'table'
+                },
+                children: [
+                    {
+                        path: 'queryIndicators',
+                        name: 'queryIndicators',
+                        component: QueryIndicators,
+                        meta: {
+                            name: '指标灵活查询'
                         }
                     }
                 ]
